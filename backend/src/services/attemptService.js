@@ -310,14 +310,13 @@ export async function finalizeAttempt({ attemptId, auto = false, emit = true, re
   if (attempt.status === ATTEMPT_STATUS.SUBMITTED) return { attempt, alreadyFinalized: true };
 
   const test = await Test.findById(attempt.testId).lean();
-  if (!test) throw ApiError.notFound('Test not found');
 
   const questions = await loadQuestions(attempt.questionOrder);
   const result = scoreAttempt({
     questions,
     responses: attempt.responses,
-    negativeMarks: test.negativeMarks ?? 0,
-    passMarks: test.passMarks ?? null
+    negativeMarks: test?.negativeMarks ?? 0,
+    passMarks: test?.passMarks ?? null
   });
 
   const band = attempt.result?.band ?? null;
@@ -346,7 +345,7 @@ export async function finalizeAttempt({ attemptId, auto = false, emit = true, re
 
   await updateStreak(attempt.userId);
 
-  if (emit) {
+  if (emit && test) {
     try {
       const { emitLeaderboardUpdate } = await import('../sockets/index.js');
       emitLeaderboardUpdate(test._id);
@@ -357,7 +356,7 @@ export async function finalizeAttempt({ attemptId, auto = false, emit = true, re
 
   // Fire-and-forget: sending must never block or fail the submit response, and
   // sendResultEmail guards double sends with its own result.emailSentAt claim.
-  if (emailEnabled()) {
+  if (emailEnabled() && test) {
     sendResultEmail({ attemptId: attempt._id, userId: attempt.userId, test, result: payload });
   }
 
