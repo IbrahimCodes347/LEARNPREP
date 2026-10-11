@@ -505,6 +505,7 @@ const TestsTab = () => {
     onSuccess: () => {
       setPendingDelete(null);
       queryClient.invalidateQueries({ queryKey: ['admin', 'tests'] });
+      notify('Test deleted.', 'success');
     },
     onError: (err) => notify(apiErrorMessage(err, 'Could not delete that test.'))
   });
