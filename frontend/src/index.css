@@ -1,0 +1,79 @@
+@import 'tailwindcss';
+
+/*
+  Every id listed here must also exist in ThemeContext's THEMES list, and the
+  other way round. A name that is only in one of the two gets no CSS, and the
+  page renders unstyled.
+
+  `fantasy` is a ready-made daisyUI theme, so it needs no theme block below.
+  Only learnprep-dark is customised.
+*/
+@plugin "daisyui" {
+  themes: fantasy --default, learnprep-dark --prefersdark;
+}
+
+/* The ONLY place hex colours are allowed (Design.md: no hex in components). */
+
+@plugin "daisyui/theme" {
+  name: "learnprep-dark";
+  prefersdark: true;
+  color-scheme: dark;
+  --color-primary: #818cf8;
+  --color-primary-content: #0f172a;
+  --color-success: #4ade80;
+  --color-warning: #fbbf24;
+  --color-error: #f87171;
+  --color-error-content: #0f172a;
+  --color-base-100: #0f172a;
+  --color-base-200: #1e293b;
+  --color-base-content: #f1f5f9;
+}
+
+/*
+  daisyUI gives .input a base-100 background and the cards holding these forms are
+  also bg-base-100, so light mode looked white on white. Own surface + a real
+  border fixes every input on every page at once. Theme tokens only, no hex here.
+*/
+.input,
+.select,
+.textarea {
+  border: 1px solid color-mix(in oklab, var(--color-base-content) 28%, transparent);
+  background-color: var(--color-base-200);
+  color: var(--color-base-content);
+}
+
+.input:focus-visible,
+.select:focus-visible,
+.textarea:focus-visible {
+  border-color: var(--color-primary);
+  outline: 2px solid var(--color-primary);
+  outline-offset: 2px;
+}
+
+/* Explicit tokens so labels stay readable in both themes. */
+.fieldset-legend,
+.label {
+  color: var(--color-base-content);
+}
+
+.input::placeholder,
+.textarea::placeholder {
+  color: color-mix(in oklab, var(--color-base-content) 65%, transparent);
+}
+
+/*
+  Chrome/Firefox autofill paints its own background over ours and is unreadable in
+  dark mode. The inset shadow is the only override that works, and it has to be
+  repeated on :hover and :focus or the browser drops it on those states.
+*/
+.input:-webkit-autofill,
+.input:-webkit-autofill:hover,
+.input:-webkit-autofill:focus,
+.textarea:-webkit-autofill,
+.textarea:-webkit-autofill:hover,
+.textarea:-webkit-autofill:focus {
+  -webkit-text-fill-color: var(--color-base-content);
+  caret-color: var(--color-base-content);
+  -webkit-box-shadow: 0 0 0 1000px var(--color-base-200) inset;
+  box-shadow: 0 0 0 1000px var(--color-base-200) inset;
+}
