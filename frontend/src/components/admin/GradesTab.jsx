@@ -135,8 +135,8 @@ const GradesTab = () => {
   const passPercentage = data?.passPercentage ?? 20;
   const total = data?.total ?? 0;
 
-  const resetPage = (fn) => (value) => {
-    fn(value);
+  const resetPage = (fn) => (e) => {
+    fn(e.target.value);
     setPage(1);
     setExpanded(null);
   };

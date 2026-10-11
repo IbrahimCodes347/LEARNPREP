@@ -355,9 +355,9 @@ export async function updateTest(req, res) {
 export async function deleteTest(req, res) {
   const { id } = req.params;
   if (!isValidObjectId(id)) throw ApiError.badRequest('Invalid test id');
-  const test = await Test.findByIdAndUpdate(id, { status: 'inactive' }, { new: true });
+  const test = await Test.findByIdAndDelete(id);
   if (!test) throw ApiError.notFound('Test not found');
-  return ok(res, { test }, 'Test deactivated');
+  return ok(res, { test }, 'Test deleted');
 }
 
 /** Grants one more attempt for one student on one test (see startAttempt). */
