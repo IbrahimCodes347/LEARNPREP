@@ -1,4 +1,4 @@
-import { createContext, useCallback, useContext, useEffect, useMemo, useState } from 'react';
+import { createContext, useCallback, useContext, useEffect, useMemo, useRef, useState } from 'react';
 import { auth } from '../api/endpoints';
 import { closeSocket } from '../api/socket';
 import { setUnauthorizedHandler } from '../api/http';
@@ -8,6 +8,13 @@ const AuthContext = createContext(null);
 export const AuthProvider = ({ children }) => {
   const [user, setUser] = useState(null);
   const [restoring, setRestoring] = useState(true);
+
+  /**
+   * Set right before an intentional logout clears the user. ProtectedRoute reads
+   * it so the guard sends the user to the public homepage ("/") instead of
+   * "/login". Without it the guard would win the race and force /login.
+   */
+  const justLoggedOut = useRef(false);
 
   // Session restore via /auth/me on boot.
   useEffect(() => {
@@ -36,17 +43,20 @@ export const AuthProvider = ({ children }) => {
 
   const login = useCallback(async (payload) => {
     const data = await auth.login(payload);
+    justLoggedOut.current = false;
     setUser(data?.user ?? null);
     return data?.user ?? null;
   }, []);
 
   const register = useCallback(async (payload) => {
     const data = await auth.register(payload);
+    justLoggedOut.current = false;
     setUser(data?.user ?? null);
     return data?.user ?? null;
   }, []);
 
   const logout = useCallback(async () => {
+    justLoggedOut.current = true;
     try {
       await auth.logout();
     } finally {
@@ -61,6 +71,7 @@ export const AuthProvider = ({ children }) => {
       restoring,
       isAuthenticated: Boolean(user),
       isAdmin: user?.role === 'admin',
+      justLoggedOut,
       login,
       register,
       logout

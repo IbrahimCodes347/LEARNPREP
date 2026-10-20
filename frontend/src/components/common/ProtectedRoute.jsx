@@ -8,11 +8,19 @@ import AccessDenied from './AccessDenied';
  * AccessDenied instead of redirecting, so a student opening /admin sees why.
  */
 const ProtectedRoute = ({ children, role }) => {
-  const { user, restoring } = useAuth();
+  const { user, restoring, justLoggedOut } = useAuth();
   const location = useLocation();
 
   if (restoring) return <Loader label="Restoring your session…" />;
-  if (!user) return <Navigate to="/login" replace state={{ from: location.pathname }} />;
+  // An intentional logout goes to the public homepage; a session that simply
+  // ended (401 / direct visit) still goes to /login.
+  if (!user) {
+    return justLoggedOut.current ? (
+      <Navigate to="/" replace />
+    ) : (
+      <Navigate to="/login" replace state={{ from: location.pathname }} />
+    );
+  }
   if (role && user.role !== role) return <AccessDenied />;
 
   return children;

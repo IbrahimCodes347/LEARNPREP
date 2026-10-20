@@ -1,4 +1,5 @@
 import { Route, Routes } from 'react-router-dom';
+import Home from './pages/Home';
 import Layout from './components/layout/Layout';
 import ProtectedRoute from './components/common/ProtectedRoute';
 import LoginPage from './pages/LoginPage';
@@ -14,6 +15,7 @@ import NotFoundPage from './pages/NotFoundPage';
 
 const App = () => (
   <Routes>
+    <Route path="/" element={<Home />} />
     <Route path="/login" element={<LoginPage />} />
     <Route path="/register" element={<RegisterPage />} />
 
@@ -24,7 +26,8 @@ const App = () => (
         </ProtectedRoute>
       }
     >
-      <Route index element={<DashboardPage />} />
+      {/* Dashboard moved from index ("/") to "/dashboard" so "/" can host the public Home page. */}
+      <Route path="/dashboard" element={<DashboardPage />} />
       <Route path="/tests" element={<TestListPage />} />
       {/* Own chrome: minimal, calm, timer-focused (Design.md principle 1). */}
       <Route
